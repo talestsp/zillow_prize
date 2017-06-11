@@ -1,0 +1,15 @@
+__pycache__/
+*.py~
+*.csv
+*.csv.tar
+*.csv.tar.gz
+*.zip
+
+.Rhistory
+*.idea*
+*.idea/
+
+*.html
+*.json
+
+.ipynb_checkpoints/
