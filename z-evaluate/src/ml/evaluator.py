@@ -69,15 +69,17 @@ if __name__ == "__main__":
     for model in [LinearRegression(), RANSACRegression()]:
         for abs_target in [False, True]:
             for norm in [False,  True]:
+                tags = []
                 dao = DAO(df_file_name="train_complete_2016.csv")
                 if norm:
                     df = dao.get_normalized_data(max_na_count_columns=0.05)
+                    tags.append("norm")
                 else:
                     df = dao.get_data(cols_type="numeric", max_na_count_columns=0.05)
 
                 df = df.dropna()
                 ev = Evaluator(df, model=model)
-                ev.evaluate(train_part_size=0.7, tags=[], abs_target=abs_target)
+                ev.evaluate(train_part_size=0.7, tags=tags, abs_target=abs_target)
                 ev.get_results().print()
                 ev.get_results().save()
 

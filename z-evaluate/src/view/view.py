@@ -14,7 +14,7 @@ for file_path in data_eval_file_paths:
         content = json.load(file)
         evals.append(content)
 
-evals_df = pd.DataFrame(evals).sort_values(by="mae")
+evals_df = pd.DataFrame(evals).sort_values(by="mae").reset_index()
 
 print(evals_df[['model_name', 'mae', 'r2', 'tags']])
 
