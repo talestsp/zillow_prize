@@ -66,43 +66,18 @@ class Evaluator:
 
 if __name__ == "__main__":
 
-    # abs=False, norm=False
-    dao = DAO(df_file_name="train_complete_2016.csv")
-    df = dao.get_data(cols_type="numeric", max_na_count_columns=0.05)
-    df = df.dropna()
-    linear_regression = LinearRegression()
-    ev = Evaluator(df, model=linear_regression)
-    ev.evaluate(train_part_size=0.7, tags=[], abs_target=False)
-    ev.get_results().print()
-    ev.get_results().save()
+    for model in [LinearRegression(), RANSACRegression()]:
+        for abs_target in [False, True]:
+            for norm in [False,  True]:
+                dao = DAO(df_file_name="train_complete_2016.csv")
+                if norm:
+                    df = dao.get_normalized_data(max_na_count_columns=0.05)
+                else:
+                    df = dao.get_data(cols_type="numeric", max_na_count_columns=0.05)
 
-    # abs=True, norm=False
-    dao = DAO(df_file_name="train_complete_2016.csv")
-    df = dao.get_data(cols_type="numeric", max_na_count_columns=0.05)
-    df = df.dropna()
-    linear_regression = LinearRegression()
-    ev = Evaluator(df, model=linear_regression)
-    ev.evaluate(train_part_size=0.7, tags=["abs"], abs_target=True)
-    ev.get_results().print()
-    ev.get_results().save()
-
-    # abs=True, norm=True
-    dao = DAO(df_file_name="train_complete_2016.csv")
-    df = dao.get_normalized_data(max_na_count_columns=0.05)
-    df = df.dropna()
-    linear_regression = LinearRegression()
-    ev = Evaluator(df, model=linear_regression)
-    ev.evaluate(train_part_size=0.7, tags=["abs", "norm"], abs_target=True)
-    ev.get_results().print()
-    ev.get_results().save()
-
-    # abs=False, norm=True
-    dao = DAO(df_file_name="train_complete_2016.csv")
-    df = dao.get_normalized_data(max_na_count_columns=0.05)
-    df = df.dropna()
-    linear_regression = LinearRegression()
-    ev = Evaluator(df, model=linear_regression)
-    ev.evaluate(train_part_size=0.7, tags=["norm"], abs_target=False)
-    ev.get_results().print()
-    ev.get_results().save()
+                df = df.dropna()
+                ev = Evaluator(df, model=model)
+                ev.evaluate(train_part_size=0.7, tags=[], abs_target=abs_target)
+                ev.get_results().print()
+                ev.get_results().save()
 

@@ -41,8 +41,8 @@ class RANSACRegression(LinearRegression):
     def __init__(self):
         self.linear_regression = linear_model.RANSACRegressor()
 
-        MODEL_NAME = "RANSACRegression"
-        print("model:", MODEL_NAME)
+        self.MODEL_NAME = "RANSACRegression"
+        print("model:", self.MODEL_NAME)
 
 
 

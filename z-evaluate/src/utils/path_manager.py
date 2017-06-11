@@ -4,7 +4,7 @@ PROJECT_DIR = "z-evaluate/"
 RESULTS_DIR = "results/"
 PLOTS_DIR = "plots/"
 PREDICTIONS_EVAL_DIR = "predictions_eval/"
-DATA_EVAL_DIR = "predictions_eval/"
+DATA_EVAL_DIR = "data_eval/"
 DATA_DIR = "data/"
 
 class PathManager:

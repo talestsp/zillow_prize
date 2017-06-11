@@ -23,7 +23,7 @@ class Results:
         self.tags.append(tags)
 
     def save(self):
-        results_file_path = PathManager().get_results_dir() + self.id.__str__() + ".json"
+        results_file_path = PathManager().get_results_data_eval_dir() + self.id.__str__() + ".json"
         with open(results_file_path, 'w') as file:
             json.dump(self.result_dict(), file)
 
