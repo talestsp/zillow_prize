@@ -6,21 +6,22 @@ import json
 from src.plot.plot import prediction_scatter_plot
 from src.utils.path_manager import PathManager
 
+from pandas import set_option
+set_option('display.float_format', lambda x: '%.5f' % x)
+
 
 class Results:
 
-    def __init__(self, model_name, result_df,  params, mae, r2, tags=[]):
+    def __init__(self, model, result_df, mae, r2, tags=[]):
         self.id = uuid4()
         self.datetime = datetime.now(pytz.timezone("Brazil/East")).__str__().split(".")[0]
-        self.model_name = model_name
+        self.model_name = model.get_model_name()
         self.result_df = result_df
-        self.params = params
+        self.params = model.params()
         self.mae = mae
         self.r2 = r2
         self.tags = tags
-
-    def add_tags(self, tags):
-        self.tags.append(tags)
+        self.model = model
 
     def save(self):
         results_file_path = PathManager().get_results_data_eval_dir() + self.id.__str__() + ".json"
@@ -40,13 +41,18 @@ class Results:
         title = self.model_name + " " + "mae:" + str(round(self.mae, 5)) + " " + "r2:" + str(round(self.r2, 5)) + " " + "tags:" + str(self.tags)
         prediction_scatter_plot(self.result_df, show_plot=show, save_plot=save, title=title, file_name=file_name)
 
+    def columns_relevance(self):
+        return self.model.columns_relevance()
+
     def print(self):
         print("id:", self.id)
+        print("model:" + self.model_name)
         print("Date:", self.datetime)
         print("MAE:", self.mae)
         print("R2:", self.r2)
         print("tags:", self.tags)
-        print("params:", self.params)
+        print("columns relevance")
+        print(self.columns_relevance())
         print()
 
     def result_dict(self):

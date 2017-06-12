@@ -3,8 +3,10 @@ from sklearn.metrics import mean_absolute_error
 
 from src.dao.dao import DAO
 from src.ml.partitioner import simple_partition
-from src.ml.linear_regression import LinearRegression, RANSACRegression
+from src.ml.sklearn_ml import LinearRegression, RANSACRegression
 from src.utils.results import Results
+
+pd.set_option('display.float_format', lambda x: '%.5f' % x)
 
 TARGET = "logerror"
 
@@ -37,8 +39,6 @@ class Evaluator:
 
         self.results = self.build_results(mae, self.model, result_df, tags)
 
-        if abs_target:
-            self.results.add_tags("abs")
         return self.results
 
     def run(self, train_part, test_part):
@@ -54,9 +54,8 @@ class Evaluator:
     def build_results(self, mae, model, result_df, tags):
         r2 = model.r2()
 
-        results = Results(model_name=model.get_model_name(), result_df=result_df,  params=model.params(),
+        results = Results(model=model, result_df=result_df,
                           mae=mae, r2=r2, tags=tags)
-        results.result_json()
 
         return results
 
@@ -76,6 +75,9 @@ if __name__ == "__main__":
                     tags.append("norm")
                 else:
                     df = dao.get_data(cols_type="numeric", max_na_count_columns=0.05)
+
+                if abs_target:
+                    tags.append("abs")
 
                 df = df.dropna()
                 ev = Evaluator(df, model=model)

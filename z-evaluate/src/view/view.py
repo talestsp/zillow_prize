@@ -2,10 +2,12 @@ import pandas as pd
 import json
 from os import listdir
 from src.utils.path_manager import PathManager
-pd.set_option('display.float_format', lambda x: '%.4f' % x)
+pd.set_option('display.float_format', lambda x: '%.6f' % x)
 
 
 data_eval_file_paths = listdir(PathManager().get_results_data_eval_dir())
+if len(data_eval_file_paths) == 0:
+    raise Exception("No results found")
 
 evals = []
 
@@ -16,5 +18,5 @@ for file_path in data_eval_file_paths:
 
 evals_df = pd.DataFrame(evals).sort_values(by="mae").reset_index()
 
-print(evals_df[['model_name', 'mae', 'r2', 'tags']])
+print(evals_df[['model_name', 'mae', 'r2', 'tags', "id"]])
 
