@@ -52,6 +52,7 @@ class H2OMlBase:
 
     def columns_relevance(self):
         if self.model_name == "H2ODeepLearning":
+            print(self.model)
             return self.model.variable_importances()
 
         varimp = self.model.varimp()

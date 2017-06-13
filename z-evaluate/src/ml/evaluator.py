@@ -4,7 +4,7 @@ import h2o
 
 from src.dao.dao import DAO
 from src.ml.partitioner import simple_partition
-from src.ml.sklearn_ml import SKLearnLinearRegression, SKLearnLasso
+from src.ml.sklearn_ml import SKLearnLinearRegression, SKLearnLasso, SKLearnRANSACRegressor
 from src.ml.h2o_ml import H2OGradientBoosting, H2ODeepLearning, H2ODeepWater, H2OStackedEnsemble
 from src.utils.results import Results
 
@@ -66,47 +66,60 @@ class Evaluator:
 
 
 if __name__ == "__main__":
-    h2o.init()
-    h2o.remove_all()
+    # h2o.init()
+    # h2o.remove_all()
 
-    for i in [0, 1]:
-        for new_features in [["knn-longitude-latitude"], []]:
+    for new_features in [["knn-longitude-latitude"], []]:
 
-            for model in [H2ODeepLearning(), H2ODeepWater(), SKLearnLinearRegression(), H2OGradientBoosting(),
-                          H2OStackedEnsemble(),  SKLearnLasso()]:
-                for abs_target in [True, False]:
-                    for norm in [True, False]:
-                        tags = []
+        for model in [SKLearnLinearRegression(),  SKLearnLasso(), SKLearnRANSACRegressor(),
+                      H2ODeepLearning(), H2OGradientBoosting()]:
 
-                        if abs_target:
-                            tags.append("abs")
-
-                        if norm:
-                            dao = DAO(df_file_name="train_complete_2016.csv", new_features=new_features)
-                            df = dao.get_normalized_data(max_na_count_columns=0.05)
-                            tags.append("norm")
-                        else:
-                            df = dao.get_data(max_na_count_columns=0.05)
-
-                        df = df.dropna()
-
-                        try:
-                            ev = Evaluator(df, model=model)
-                            ev.evaluate(train_part_size=0.7, tags=tags, abs_target=abs_target)
-
-                        except:
-                            df = dao.get_data(cols_type="numeric", max_na_count_columns=0.05)
-                            df = df.dropna()
-                            tags.append("numeric")
-                            ev = Evaluator(df, model=model)
-                            ev.evaluate(train_part_size=0.7, tags=tags, abs_target=abs_target)
+            for abs_target in [True, False]:
+                for norm in [True, False]:
+                    print("Evaluating:", model.model_name)
+                    # tags = []
+                    # dao = DAO(df_file_name="train_complete_2016.csv")
+                    #
+                    # if norm:
+                    #     df = dao.get_normalized_data(max_na_count_columns=0.05)
+                    #     tags.append("norm")
+                    # else:
+                    #     df = dao.get_data(cols_type="numeric", max_na_count_columns=0.05)
+                    #
+                    #
+                    # if abs_target:
+                    #     tags.append("abs")
+                    #
+                    # df = df.dropna()
+                    # ev = Evaluator(df, model=model)
+                    # ev.evaluate(train_part_size=0.7, tags=tags, abs_target=abs_target)
+                    # ev.get_results().print()
+                    # ev.get_results().save()
 
 
-                        try:
-                            ev.get_results().print()
-                        except:
-                            pass
+                    tags = []
+                    dao = DAO(df_file_name="train_complete_2016.csv", new_features=new_features)
 
-                        ev.get_results().set_new_features(new_features)
-                        ev.get_results().save()
+                    if abs_target:
+                        tags.append("abs")
+
+                    if norm:
+                        df = dao.get_normalized_data(max_na_count_columns=0.05)
+                        tags.append("norm")
+                    else:
+                        df = dao.get_data(cols_type="numeric", max_na_count_columns=0.05)
+
+                    df = df.dropna()
+
+                    ev = Evaluator(df, model=model)
+                    ev.evaluate(train_part_size=0.7, tags=tags, abs_target=abs_target)
+
+
+                    try:
+                        ev.get_results().print()
+                    except:
+                        pass
+
+                    ev.get_results().set_new_features(new_features)
+                    ev.get_results().save()
 

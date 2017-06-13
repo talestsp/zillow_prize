@@ -66,6 +66,14 @@ class SKLearnLinearRegression(SKLearnMlBase):
         SKLearnMlBase.__init__(self, model_name, model)
 
 
+class SKLearnRANSACRegressor(SKLearnMlBase):
+
+    def __init__(self):
+        model = linear_model.RANSACRegressor()
+        model_name = "SKLearnRANSACRegressor"
+        SKLearnMlBase.__init__(self, model_name, model)
+
+
 class SKLearnLasso(SKLearnMlBase):
 
     def __init__(self):

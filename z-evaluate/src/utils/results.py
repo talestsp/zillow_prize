@@ -47,13 +47,13 @@ class Results:
 
     def print(self):
         print("id:", self.id)
-        print("model:" + self.model_name)
+        #print("model:" + self.model_name)
         print("Date:", self.datetime)
         print("MAE:", self.mae)
         print("R2:", self.r2)
         print("tags:", self.tags)
         print("columns relevance")
-        print(self.columns_relevance())
+        #print(self.columns_relevance())
         print()
 
     def result_dict(self):
