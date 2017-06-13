@@ -42,6 +42,9 @@ class Results:
     def set_new_features(self, new_features):
         self.new_features = new_features
 
+    def set_feat_selection(self, feat_selection):
+        self.feat_selection = feat_selection
+
     def plot(self, show, save, file_name=None):
         title = self.model_name + " " + "mae:" + str(round(self.mae, 5)) + " " + "r2:" + str(round(self.r2, 5)) + " " + "tags:" + str(self.tags)
         prediction_scatter_plot(self.result_df, show_plot=show, save_plot=save, title=title, file_name=file_name)
@@ -56,6 +59,7 @@ class Results:
         print("MAE:", self.mae)
         print("R2:", self.r2)
         print("tags:", self.tags)
+        print("feat_selection:", self.feat_selection)
         print("columns relevance")
         print(self.columns_relevance())
         print()
@@ -69,6 +73,7 @@ class Results:
         result_dict["r2"] = self.r2
         result_dict["tags"] = self.tags
         result_dict["new_features"] = self.new_features
+        result_dict["feat_selection:"] = self.feat_selection
         result_dict["params"] = self.params
 
         return result_dict
