@@ -2,13 +2,12 @@ import pandas as pd
 from sklearn import linear_model
 from sklearn import preprocessing
 
-class LinearRegression:
+class SKLearnMlBase:
 
-    def __init__(self, model_name="LinearRegression"):
-        self.model = linear_model.LinearRegression() #a LinearRegession from sklearn is used
-
-        self.MODEL_NAME = model_name #set model name
-        print("model:", self.MODEL_NAME)
+    def __init__(self, model_name, model):
+        self.model_name = model_name #set model name
+        self.model = model
+        print("model:", self.model_name)
 
     def train(self, df_train, target_name):
         use_cols = df_train.columns.tolist() #columns from train
@@ -20,7 +19,7 @@ class LinearRegression:
         self.target_name = target_name
 
     def get_model_name(self):
-        return self.MODEL_NAME
+        return self.model_name
 
     def predict(self, df_test):
         #perform the prediction
@@ -43,7 +42,7 @@ class LinearRegression:
         cols = self.df_train.columns.tolist()
         cols.remove(self.target_name)
 
-        relevance = pd.DataFrame({"columns": cols, "relevance": self.model.coef_})
+        relevance = pd.DataFrame({"column": cols, "relevance": self.model.coef_})
         relevance["abs_relevance"] = abs(relevance["relevance"])
 
         relevance = relevance.sort_values(by="abs_relevance", ascending=False)
@@ -59,16 +58,18 @@ class LinearRegression:
         return relevance
 
 
-class RANSACRegression(LinearRegression):
+class SKLearnLinearRegression(SKLearnMlBase):
 
     def __init__(self):
-        self.model = linear_model.RANSACRegressor()
-        self.MODEL_NAME = "RANSACRegression"
+        model = linear_model.LinearRegression()
+        model_name = "SKLearnLinearRegression"
+        SKLearnMlBase.__init__(self, model_name, model)
 
 
-        LinearRegression.__init__(self, self.MODEL_NAME)
+class SKLearnLasso(SKLearnMlBase):
 
-
-
-
+    def __init__(self):
+        model = linear_model.Lasso()
+        model_name = "SKLearnLasso"
+        SKLearnMlBase.__init__(self, model_name, model)
 

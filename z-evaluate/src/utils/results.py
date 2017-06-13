@@ -22,6 +22,7 @@ class Results:
         self.r2 = r2
         self.tags = tags
         self.model = model
+        self.new_features = None
 
     def save(self):
         results_file_path = PathManager().get_results_data_eval_dir() + self.id.__str__() + ".json"
@@ -64,9 +65,13 @@ class Results:
         result_dict["r2"] = self.r2
         result_dict["tags"] = self.tags
         result_dict["params"] = self.params
+        result_dict["new_features"] = self.new_features
 
         return result_dict
 
     def result_json(self):
         result_dict = self.result_dict()
         return json.dumps(result_dict)
+
+    def set_new_features(self, new_features):
+        self.new_features = new_features

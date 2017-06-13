@@ -18,5 +18,5 @@ for file_path in data_eval_file_paths:
 
 evals_df = pd.DataFrame(evals).sort_values(by="mae").reset_index()
 
-print(evals_df[['model_name', 'mae', 'r2', 'tags', "id"]])
+print(evals_df[['model_name', 'mae', 'r2', 'tags', "new_features", "id"]])
 

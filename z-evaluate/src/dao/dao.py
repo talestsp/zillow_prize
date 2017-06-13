@@ -8,16 +8,24 @@ TRAIN_2016_DATA_FILE_NAME = "train_complete_2016.csv"
 
 class DAO:
 
-    def __init__(self, df_file_name=TRAIN_2016_DATA_FILE_NAME):
+    def __init__(self, df_file_name=TRAIN_2016_DATA_FILE_NAME, new_features=[]):
         self.pm = PathManager()
 
         df_file_path = self.pm.get_data_dir(df_file_name)
-        self.data = self.load_data(df_file_path)
+        self.data = self.load_data(df_file_path, new_features=new_features)
 
-    def load_data(self, df_file_path):
+    def load_data(self, df_file_path, new_features=[]):
         df = pd.read_csv(df_file_path)
         df = df.set_index(df["parcelid"])
         del df["parcelid"]
+
+        for new_feature in new_features:
+            path = PathManager().get_new_features_dir() + new_feature + ".csv"
+            new_feature_df = pd.read_csv(path)
+            new_feature_df = new_feature_df.set_index(new_feature_df["parcelid"])
+
+            df = df.merge(new_feature_df, left_index=True, right_index=True, how="left")
+
         gc.collect()
         return df
 
