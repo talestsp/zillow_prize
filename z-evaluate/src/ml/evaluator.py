@@ -5,7 +5,7 @@ import h2o
 from src.dao.dao import DAO
 from src.ml.partitioner import simple_partition
 from src.ml.sklearn_ml import SKLearnLinearRegression, SKLearnLasso
-from src.ml.h2o_ml import H2OGradientBoosting, H2ODeepLearning, H2OPrincipalComponentAnalysis, H2ODeepWater, H2OStackedEnsemble
+from src.ml.h2o_ml import H2OGradientBoosting, H2ODeepLearning, H2ODeepWater, H2OStackedEnsemble
 from src.utils.results import Results
 
 pd.set_option('display.float_format', lambda x: '%.5f' % x)
@@ -72,7 +72,7 @@ if __name__ == "__main__":
     for i in [0, 1]:
         for new_features in [["knn-longitude-latitude"], []]:
 
-            for model in [SKLearnLinearRegression(), H2OGradientBoosting(), H2ODeepLearning(), H2ODeepWater(),
+            for model in [H2ODeepLearning(), H2ODeepWater(), SKLearnLinearRegression(), H2OGradientBoosting(),
                           H2OStackedEnsemble(),  SKLearnLasso()]:
                 for abs_target in [True, False]:
                     for norm in [True, False]:

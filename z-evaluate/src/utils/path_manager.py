@@ -18,6 +18,9 @@ class PathManager:
         i = wd_split.index("z-evaluate")
         return "/".join(wd_split[0:i]) + "/"
 
+    def project_directory(self):
+        return self.root_dir + PROJECT_DIR
+
     def root_parent_directory(self):
         wd_split = os.path.dirname(os.path.realpath(__file__)).split("/")
         i = wd_split.index("z-evaluate")
@@ -44,10 +47,10 @@ class PathManager:
         return path
 
     def get_data_dir(self, data_file_name):
-        return self.root_dir + DATA_DIR + data_file_name
+        return self.project_directory() + DATA_DIR + data_file_name
 
     def get_new_features_dir(self):
-        return self.root_dir + DATA_DIR + NEW_FEATURES_DIR
+        return self.project_directory() + DATA_DIR + NEW_FEATURES_DIR
 
     def create_dir(self, dir_path):
         if not os.path.exists(dir_path):
