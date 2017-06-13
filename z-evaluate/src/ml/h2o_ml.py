@@ -6,12 +6,10 @@ from src.dao.dao import DAO
 
 class H2OMlBase:
 
-    def __init__(self, model_name=None, model=None):
+    def __init__(self):
         h2o.init()
         h2o.remove_all()
 
-        self.model_name = model_name  # set model name
-        self.model = model
         print("model:", self.model_name)
 
     def train(self, df_train, target_name):
@@ -51,10 +49,6 @@ class H2OMlBase:
         return self.model.get_params()
 
     def columns_relevance(self):
-        if self.model_name == "H2ODeepLearning":
-            print(self.model)
-            return self.model.variable_importances()
-
         varimp = self.model.varimp()
         relevances = pd.DataFrame(varimp)
         relevances.columns = ["column", "1", "relevance", "3"]
@@ -63,35 +57,26 @@ class H2OMlBase:
 class H2OGradientBoosting(H2OMlBase):
 
     def __init__(self):
-        model = h2o.estimators.H2OGradientBoostingEstimator()
-        model_name = "H2OGradientBoosting"
-        H2OMlBase.__init__(self, model_name, model)
+        self.model = h2o.estimators.H2OGradientBoostingEstimator()
+        self.model_name = "H2OGradientBoosting"
+        H2OMlBase.__init__(self)
 
 
 class H2ODeepLearning(H2OMlBase):
 
     def __init__(self):
-        model = h2o.estimators.H2ODeepLearningEstimator()
-        model_name = "H2ODeepLearning"
-        H2OMlBase.__init__(self, model_name, model)
+        self.model = h2o.estimators.H2ODeepLearningEstimator(variable_importances=True)
+        self.model_name = "H2ODeepLearning"
+        H2OMlBase.__init__(self)
 
 
 class H2ODeepWater(H2OMlBase):
 
     def __init__(self):
-        model = h2o.estimators.H2ODeepWaterEstimator()
-        model_name = "H2ODeepWater"
-        H2OMlBase.__init__(self, model_name, model)
+        self.model = h2o.estimators.H2ODeepWaterEstimator()
+        self.model_name = "H2ODeepWater"
+        H2OMlBase.__init__(self)
 
-
-class H2OStackedEnsemble(H2OMlBase):
-
-    def __init__(self):
-        self.model = h2o.estimators.H2OStackedEnsembleEstimator()
-        self.model_name = "H2OStackedEnsemble"
-        H2OMlBase.__init__(self, self.model_name, self.model)
-        # H2OMlBase.model = model
-        # H2OMlBase.model_name = "H2OStackedEnsemble"
 
 
 

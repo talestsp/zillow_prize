@@ -4,9 +4,7 @@ from sklearn import preprocessing
 
 class SKLearnMlBase:
 
-    def __init__(self, model_name, model):
-        self.model_name = model_name #set model name
-        self.model = model
+    def __init__(self):
         print("model:", self.model_name)
 
     def train(self, df_train, target_name):
@@ -42,7 +40,7 @@ class SKLearnMlBase:
         cols = self.df_train.columns.tolist()
         cols.remove(self.target_name)
 
-        relevance = pd.DataFrame({"column": cols, "relevance": self.model.coef_})
+        relevance = pd.DataFrame({"columns": cols, "relevance": self.model.coef_})
         relevance["abs_relevance"] = abs(relevance["relevance"])
 
         relevance = relevance.sort_values(by="abs_relevance", ascending=False)
@@ -58,26 +56,50 @@ class SKLearnMlBase:
         return relevance
 
 
+class SKLearnRANSACRegression(SKLearnMlBase):
+
+    def __init__(self):
+        self.model = linear_model.RANSACRegressor(linear_model.LinearRegression())
+        self.model_name = "SKLearnRANSACRegression"
+
+        SKLearnMlBase.__init__(self)
+
+    #overwriting from base class
+    def columns_relevance(self):
+        #each column (attribute) has a different relevance depending on the model used
+        cols = self.df_train.columns.tolist()
+        cols.remove(self.target_name)
+
+        relevance = pd.DataFrame({"columns": cols, "relevance": self.model.estimator_.coef_})
+        relevance["abs_relevance"] = abs(relevance["relevance"])
+
+        relevance = relevance.sort_values(by="abs_relevance", ascending=False)
+
+        norm_relevance = relevance["abs_relevance"].values.reshape(-1, 1)
+        min_max_scaler = preprocessing.MinMaxScaler()
+        x_scaled = min_max_scaler.fit_transform(norm_relevance)
+        norm_relevance = x_scaled
+        relevance["relevance"] = norm_relevance
+
+        del relevance["abs_relevance"]
+
+        return relevance
+
+    def params(self):
+        #returns the model's parameters, these values are differents, it depends on the model used
+
+        params = self.model.get_params(deep=True)
+        del params["base_estimator"]
+
+        return params
+
+
 class SKLearnLinearRegression(SKLearnMlBase):
 
     def __init__(self):
-        model = linear_model.LinearRegression()
-        model_name = "SKLearnLinearRegression"
-        SKLearnMlBase.__init__(self, model_name, model)
+        self.model = linear_model.LinearRegression()
+        self.model_name = "SKLearnLinearRegression"
+        SKLearnMlBase.__init__(self)
 
 
-class SKLearnRANSACRegressor(SKLearnMlBase):
-
-    def __init__(self):
-        model = linear_model.RANSACRegressor()
-        model_name = "SKLearnRANSACRegressor"
-        SKLearnMlBase.__init__(self, model_name, model)
-
-
-class SKLearnLasso(SKLearnMlBase):
-
-    def __init__(self):
-        model = linear_model.Lasso()
-        model_name = "SKLearnLasso"
-        SKLearnMlBase.__init__(self, model_name, model)
 

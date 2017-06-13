@@ -3,6 +3,8 @@ import json
 from os import listdir
 from src.utils.path_manager import PathManager
 pd.set_option('display.float_format', lambda x: '%.6f' % x)
+pd.set_option('display.max_columns', 500)
+pd.set_option('display.width', 1000)
 
 
 data_eval_file_paths = listdir(PathManager().get_results_data_eval_dir())
@@ -18,5 +20,5 @@ for file_path in data_eval_file_paths:
 
 evals_df = pd.DataFrame(evals).sort_values(by="mae").reset_index()
 
-print(evals_df[['model_name', 'mae', 'r2', 'tags', "new_features", "id"]])
+print(evals_df[['model_name', 'tags', 'mae', 'r2', 'new_features', 'id']])
 

@@ -1,3 +1,5 @@
 https://stackoverflow.com/questions/36659453/intel-mkl-fatal-error-cannot-load-libmkl-avx2-so-or-libmkl-def-so/36967410
+https://github.com/Avkash/mldl/blob/master/h2o_deepwater_build.md
+https://github.com/Avkash/mldl/blob/master/pages/h2o_source.md
 
 

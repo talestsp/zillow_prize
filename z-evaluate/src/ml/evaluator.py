@@ -1,11 +1,10 @@
 import pandas as pd
 from sklearn.metrics import mean_absolute_error
-import h2o
 
 from src.dao.dao import DAO
 from src.ml.partitioner import simple_partition
-from src.ml.sklearn_ml import SKLearnLinearRegression, SKLearnLasso, SKLearnRANSACRegressor
-from src.ml.h2o_ml import H2OGradientBoosting, H2ODeepLearning, H2ODeepWater, H2OStackedEnsemble
+from src.ml.sklearn_ml import SKLearnLinearRegression, SKLearnRANSACRegression
+from src.ml.h2o_ml import H2ODeepLearning, H2ODeepWater, H2OGradientBoosting
 from src.utils.results import Results
 
 pd.set_option('display.float_format', lambda x: '%.5f' % x)
@@ -19,7 +18,7 @@ class Evaluator:
         self.df = df
         self.model = model
 
-    def evaluate(self, train_part_size=0.7, abs_target=False, tags=[]):
+    def evaluate(self, train_part_size=0.7, abs_target=False):
         '''
 
         :param train_part_size: proportion of dataset to be set as train partition
@@ -39,7 +38,7 @@ class Evaluator:
         result_df = pd.DataFrame({"real": test_part_target, "prediction": predict})
         mae = mean_absolute_error(result_df["real"], result_df["prediction"])
 
-        self.results = self.build_results(mae, self.model, result_df, tags)
+        self.results = self.build_results(mae, self.model, result_df)
 
         return self.results
 
@@ -53,12 +52,9 @@ class Evaluator:
 
         return predict
 
-    def build_results(self, mae, model, result_df, tags):
-        r2 = model.r2()
+    def build_results(self, mae, model, result_df):
 
-        results = Results(model=model, result_df=result_df,
-                          mae=mae, r2=r2, tags=tags)
-
+        results = Results(model=model, result_df=result_df, mae=mae)
         return results
 
     def get_results(self):
@@ -66,60 +62,31 @@ class Evaluator:
 
 
 if __name__ == "__main__":
-    # h2o.init()
-    # h2o.remove_all()
 
-    for new_features in [["knn-longitude-latitude"], []]:
-
-        for model in [SKLearnLinearRegression(),  SKLearnLasso(), SKLearnRANSACRegressor(),
-                      H2ODeepLearning(), H2OGradientBoosting()]:
-
+    for model in [H2ODeepLearning(), H2OGradientBoosting(),
+                  SKLearnRANSACRegression(), SKLearnLinearRegression()]:
+        for new_features in [["knn-longitude-latitude"], []]:
             for abs_target in [True, False]:
                 for norm in [True, False]:
-                    print("Evaluating:", model.model_name)
-                    # tags = []
-                    # dao = DAO(df_file_name="train_complete_2016.csv")
-                    #
-                    # if norm:
-                    #     df = dao.get_normalized_data(max_na_count_columns=0.05)
-                    #     tags.append("norm")
-                    # else:
-                    #     df = dao.get_data(cols_type="numeric", max_na_count_columns=0.05)
-                    #
-                    #
-                    # if abs_target:
-                    #     tags.append("abs")
-                    #
-                    # df = df.dropna()
-                    # ev = Evaluator(df, model=model)
-                    # ev.evaluate(train_part_size=0.7, tags=tags, abs_target=abs_target)
-                    # ev.get_results().print()
-                    # ev.get_results().save()
-
-
+                    print("Evaluating:", model.__class__.__name__)
                     tags = []
                     dao = DAO(df_file_name="train_complete_2016.csv", new_features=new_features)
+                    if norm:
+                        df = dao.get_normalized_data(max_na_count_columns=0.05)
+                        tags.append("norm")
+
+                    else:
+                        df = dao.get_data(cols_type="numeric", max_na_count_columns=0.05)
 
                     if abs_target:
                         tags.append("abs")
 
-                    if norm:
-                        df = dao.get_normalized_data(max_na_count_columns=0.05)
-                        tags.append("norm")
-                    else:
-                        df = dao.get_data(cols_type="numeric", max_na_count_columns=0.05)
-
                     df = df.dropna()
-
                     ev = Evaluator(df, model=model)
-                    ev.evaluate(train_part_size=0.7, tags=tags, abs_target=abs_target)
+                    ev.evaluate(train_part_size=0.7, abs_target=abs_target)
 
-
-                    try:
-                        ev.get_results().print()
-                    except:
-                        pass
-
-                    ev.get_results().set_new_features(new_features)
+                    ev.get_results().set_tags(tags=tags)
+                    ev.get_results().set_new_features(new_features=new_features)
+                    ev.get_results().print()
                     ev.get_results().save()
 
