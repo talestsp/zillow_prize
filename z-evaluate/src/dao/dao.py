@@ -73,16 +73,16 @@ class DAO:
         '''
         df = self.get_data(cols_type="numeric", dataset=dataset, max_na_count_columns=max_na_count_columns)
 
-        target = df["logerror"]
-
-        del df["logerror"]
-
         if inputation == "drop":
             df = df.dropna()
         elif inputation == "fill_0":
             df = df.fillna(0)
         elif inputation == "column_mean":
             df = col_mean_inputer(df)
+
+        if dataset == "train":
+            target = df["logerror"]
+            del df["logerror"]
 
         parcelid_index = df.index
 
@@ -95,7 +95,7 @@ class DAO:
         gc.collect()
         df_norm = df_norm.set_index(parcelid_index)
 
-        df["logerror"] = target
+        df_norm["logerror"] = target.tolist()
         return df_norm
 
     def infer_numeric_cols(self, df):

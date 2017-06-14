@@ -11,14 +11,9 @@ TARGET = "logerror"
 def submission(model, norm, feat_selection, inputation, new_features, subm_name):
     dao = DAO(new_features=new_features)
 
-    if feat_selection is None:
-        feat_selection_name = ""
-    else:
-        feat_selection_name = feat_selection.__name__
-
     if norm:
         train = dao.get_normalized_data(dataset="train", inputation=inputation, max_na_count_columns=0.05)
-        test = dao.get_normalized_data(dataset="test", inputation=inputation, max_na_count_columns=1).head(50000)
+        test = dao.get_normalized_data(dataset="test", inputation=inputation, max_na_count_columns=1)
         print(len(test))
     else:
         train = dao.get_data(cols_type="numeric", dataset="train", max_na_count_columns=0.05)
@@ -26,14 +21,21 @@ def submission(model, norm, feat_selection, inputation, new_features, subm_name)
 
     test_ids = test.index.tolist()
 
-    columns = feat_selection(train)
-    train_columns = columns + [TARGET]
+
+    if feat_selection is None:
+        feat_selection_name = ""
+    else:
+        feat_selection_name = feat_selection.__name__
+        columns = feat_selection(train)
+        train_columns = columns + [TARGET]
+        train = train[train_columns]
+        test = test[columns]
+
 
     ev = Evaluator(model=model)
-    pred = ev.run(train[train_columns], test[columns], abs_target=False)
+    pred = ev.run(train, test, abs_target=False)
 
     pred = pd.Series(pred)
-    pred = round(pred, 7)
     subm = pd.DataFrame()
     subm["ParcelId"] = test_ids
     subm["201610"] = pred
@@ -42,13 +44,6 @@ def submission(model, norm, feat_selection, inputation, new_features, subm_name)
     subm["201710"] = pred
     subm["201711"] = pred
     subm["201712"] = pred
-
-    print(subm.sort_values("ParcelId"))
-    print(subm["ParcelId"].describe())
-    print()
-    print(subm["201610"].head())
-    print(subm["201610"].describe())
-
 
     subm_path = PathManager().get_submission_dir() + subm_name + ".csv"
     subm.to_csv(subm_path, index=False)
@@ -85,12 +80,15 @@ if __name__ == "__main__":
     # subm = submission(pred, test_ids)
     # print(subm.head
 
-    submission(model=H2OGradientBoosting(), norm=True, feat_selection=select_by_corr_thresh,
+    submission(model=H2OGradientBoosting(), norm=False, feat_selection=None,
                       new_features=["knn-longitude-latitude"],
-                      inputation="column_mean", subm_name="eaaf4137-e2c7-423c-862f-6e143db09375")
+                      inputation="fill_0", subm_name="52f5fa93-74e7-4c74-81cc-1779ba5bfd47")
 
-    # subm_path = PathManager().get_submission_dir() + "sub2.csv"
-    # subm.to_csv(subm_path, index=False)
+
+
+    #submission(model=H2OGradientBoosting(), norm=True, feat_selection=select_by_corr_thresh,
+    #                  new_features=["knn-longitude-latitude"],
+    #                  inputation="drop", subm_name="24449a9a-38e3-4115-bae8-e7a334a95c5c")
 
 
 

@@ -66,43 +66,47 @@ class Evaluator:
 
 if __name__ == "__main__":
 
-    for feat_selection in [select_by_corr_thresh, None]:
-        for model in [SKLearnLinearRegression(), SKLearnRANSACRegression(), H2ODeepLearning(), H2OGradientBoosting()]:
+    for cols_type in ["numeric", "all"]:
+        for feat_selection in [select_by_corr_thresh, None]:
             for new_features in [["knn-longitude-latitude"], []]:
-                for abs_target in [True, False]:
-                    for norm in [True, False]:
-                        for inputation in ["column_mean", "fill_0"]:
-                            print("Evaluating:", model.__class__.__name__)
-                            tags = []
-                            dao = DAO(train_file_name="train_complete_2016.csv", new_features=new_features)
+                for norm in [True, False]:
+                    for abs_target in [True, False]:
+                        for inputation in ["column_mean", "drop", "fill_0"]:
+                            for model in [H2OGradientBoosting(), SKLearnLinearRegression(), H2ODeepLearning(), SKLearnRANSACRegression()]:
+                                print("Evaluating:", model.__class__.__name__)
+                                tags = []
+                                dao = DAO(train_file_name="train_complete_2016.csv", new_features=new_features)
 
-                            if norm:
-                                df = dao.get_normalized_data(inputation=inputation, max_na_count_columns=0.05)
-                                tags.append("norm")
-                            else:
-                                df = dao.get_data(cols_type="numeric", max_na_count_columns=0.05)
+                                if norm and cols_type == "numeric":
+                                    df = dao.get_normalized_data(inputation=inputation, max_na_count_columns=0.05)
+                                    tags.append("norm")
 
-                            df = df.dropna()
+                                elif not norm:
+                                    df = dao.get_data(cols_type=cols_type, max_na_count_columns=0.05)
 
-                            if not feat_selection is None:
-                                columns = feat_selection(df) + [TARGET]
-                                df = df[columns]
-                                feature_selection_name = feat_selection.__name__
+                                df = df.dropna()
 
-                            else:
-                                feature_selection_name = ""
+                                if not feat_selection is None:
+                                    columns = feat_selection(df) + [TARGET]
+                                    df = df[columns]
+                                    feature_selection_name = feat_selection.__name__
 
-                            ev = Evaluator(model=model)
-                            ev.evaluate(train_part_size=0.7, abs_target=abs_target)
+                                else:
+                                    feature_selection_name = ""
+
+                                ev = Evaluator(model=model)
+                                ev.evaluate(train_part_size=0.7, abs_target=abs_target)
 
 
-                            if abs_target:
-                                tags.append("abs")
+                                if abs_target:
+                                    tags.append("abs")
 
-                            ev.get_results().set_tags(tags=tags)
-                            ev.get_results().set_new_features(new_features=new_features)
-                            ev.get_results().set_feat_selection(feat_selection=feature_selection_name)
-                            ev.get_results().set_inputation(inputation=inputation)
-                            ev.get_results().print()
-                            ev.get_results().save()
+
+                                ev.get_results().set_cols_type(cols_type=cols_type)
+                                ev.get_results().set_tags(tags=tags)
+                                ev.get_results().set_new_features(new_features=new_features)
+                                ev.get_results().set_feat_selection(feat_selection=feature_selection_name)
+                                ev.get_results().set_inputation(inputation=inputation)
+                                ev.get_results().save()
+                                ev.get_results().print()
 

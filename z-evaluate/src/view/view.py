@@ -2,7 +2,7 @@ import pandas as pd
 import json
 from os import listdir
 from src.utils.path_manager import PathManager
-pd.set_option('display.float_format', lambda x: '%.6f' % x)
+pd.set_option('display.float_format', lambda x: '%.7f' % x)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
@@ -19,6 +19,14 @@ for file_path in data_eval_file_paths:
         evals.append(content)
 
 evals_df = pd.DataFrame(evals).sort_values(by="mae").reset_index()
+evals_df.to_csv(PathManager().get_results_dir() + "evals_df.csv", index=False)
 
-print(evals_df[['model_name', 'tags', 'feat_selection', 'mae', 'r2', 'inputation', 'new_features', 'id']])
+evals_df = pd.DataFrame(evals).sort_values(by="r2", ascending=False)
+
+use_evals = evals_df[(evals_df["tags"].astype(str) != str(["abs"])) &
+                     (evals_df["tags"].astype(str) != str(["norm", "abs"])) &
+                     (evals_df["inputation"] != "drop")]
+
+
+print(use_evals[['model_name', 'tags', 'feat_selection', 'mae', 'r2', 'inputation', 'new_features', 'id']])
 

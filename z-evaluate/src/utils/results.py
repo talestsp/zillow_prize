@@ -48,6 +48,9 @@ class Results:
     def set_inputation(self, inputation):
         self.inputation = inputation
 
+    def set_cols_type(self, cols_type):
+        self.cols_type = cols_type
+
     def plot(self, show, save, file_name=None):
         title = self.model_name + " " + "mae:" + str(round(self.mae, 5)) + " " + "r2:" + str(round(self.r2, 5)) + " " + "tags:" + str(self.tags)
         prediction_scatter_plot(self.result_df, show_plot=show, save_plot=save, title=title, file_name=file_name)
@@ -64,6 +67,8 @@ class Results:
         print("tags:", self.tags)
         print("feat_selection:", self.feat_selection)
         print("inputation:", self.inputation)
+        print("new_feat:", self.new_features)
+        print("set_cols_type:", self.cols_type)
         print("columns relevance:")
         print(self.columns_relevance())
         print()
@@ -80,6 +85,7 @@ class Results:
         result_dict["feat_selection"] = self.feat_selection
         result_dict["inputation"] = self.inputation
         result_dict["params"] = self.params
+        result_dict["cols_type"] = self.cols_type
 
         return result_dict
 

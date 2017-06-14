@@ -1,0 +1,31 @@
+~ Different types of inputation (infer missing values; NAs)
+    ~ Already implemented
+        ~ col_mean: input value with the mean of the column
+        ~ fill_0: fills NA with 0 (very dummy)
+        ~ drop: remove rows with NAs (avoid the problem)
+
+    ~ To be implemented
+        ~ cluster based
+        ~ use predictive models
+        ...
+
+~ Implement other predictive models. Please follow the model's "interface" at src.ml.sklearn_ml.py
+    ~ Already implemented models
+        ~ H2ODeepLearning
+        ~ H2OGradientBoosting
+        ~ SKLearnLinearRegression
+        ~ SKLearnRANSACRegression
+
+    ~ To be implemented
+        ~ DeepWater from H2O
+        ~ Random Forest Regressor
+        ...
+
+~ Feature engineering
+    ~ Features already created
+        ~ knn-longitude-latitude: logerror of the nearest geographical neighbor
+
+    ~ To be created
+        ...
+
+~ Plot relations between each column and the logerror. Scatter Plot would work well. Please use X axis as the non target column :)
