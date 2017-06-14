@@ -17,26 +17,22 @@ TARGET = "logerror"
 
 class Evaluator:
 
-    def __init__(self, df, model):
-        self.df = df
+    def __init__(self, model):
         self.model = model
 
     def evaluate(self, train_part_size=0.7, abs_target=False):
         '''
-
         :param train_part_size: proportion of dataset to be set as train partition
         :param abs_target: converts target values to positives values by aplying abs()
         :param tags: experiment tags, a list of strings
         :return: Results object
         '''
         use_df = df.copy()
-        if abs_target:
-            use_df[TARGET] = abs(use_df[TARGET])
 
         train_part, test_part = simple_partition(use_df, train_part_size)
         test_part_target = test_part[TARGET]
 
-        predict = self.run(train_part, test_part)
+        predict = self.run(train_part, test_part, abs_target)
 
         result_df = pd.DataFrame({"real": test_part_target, "prediction": predict})
         mae = mean_absolute_error(result_df["real"], result_df["prediction"])
@@ -45,7 +41,11 @@ class Evaluator:
 
         return self.results
 
-    def run(self, train_part, test_part):
+    def run(self, train_part, test_part, abs_target):
+        if abs_target:
+            train_part[TARGET] = abs(train_part[TARGET].copy())
+            test_part[TARGET] = abs(test_part[TARGET].copy())
+
         self.model.train(train_part, target_name=TARGET)
 
         if TARGET in test_part.columns.tolist():
@@ -67,35 +67,39 @@ class Evaluator:
 if __name__ == "__main__":
 
     for feat_selection in [select_by_corr_thresh, None]:
-        for model in [SKLearnRANSACRegression(), SKLearnLinearRegression()]:
+        for model in [SKLearnLinearRegression()]:
             for new_features in [["knn-longitude-latitude"], []]:
                 for abs_target in [True, False]:
                     for norm in [True, False]:
                         print("Evaluating:", model.__class__.__name__)
                         tags = []
-                        dao = DAO(df_file_name="train_complete_2016.csv", new_features=new_features)
+                        dao = DAO(train_file_name="train_complete_2016.csv", new_features=new_features)
                         if norm:
                             df = dao.get_normalized_data(max_na_count_columns=0.05)
                             tags.append("norm")
-
                         else:
                             df = dao.get_data(cols_type="numeric", max_na_count_columns=0.05)
-
-                        if abs_target:
-                            tags.append("abs")
 
                         df = df.dropna()
 
                         if not feat_selection is None:
                             columns = feat_selection(df) + [TARGET]
                             df = df[columns]
+                            feature_selection_name = feat_selection.__name__
 
-                        ev = Evaluator(df, model=model)
+                        else:
+                            feature_selection_name = ""
+
+                        ev = Evaluator(model=model)
                         ev.evaluate(train_part_size=0.7, abs_target=abs_target)
+
+
+                        if abs_target:
+                            tags.append("abs")
 
                         ev.get_results().set_tags(tags=tags)
                         ev.get_results().set_new_features(new_features=new_features)
-                        ev.get_results().set_feat_selection(feat_selection=str(feat_selection))
+                        ev.get_results().set_feat_selection(feat_selection=feature_selection_name)
                         ev.get_results().print()
                         ev.get_results().save()
 

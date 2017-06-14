@@ -59,7 +59,7 @@ class Results:
         print("MAE:", self.mae)
         print("R2:", self.r2)
         print("tags:", self.tags)
-        print("feat_selection:", self.feat_selection)
+        print("feat_selection", self.feat_selection)
         print("columns relevance")
         print(self.columns_relevance())
         print()
@@ -73,7 +73,7 @@ class Results:
         result_dict["r2"] = self.r2
         result_dict["tags"] = self.tags
         result_dict["new_features"] = self.new_features
-        result_dict["feat_selection:"] = self.feat_selection
+        result_dict["feat_selection"] = self.feat_selection
         result_dict["params"] = self.params
 
         return result_dict

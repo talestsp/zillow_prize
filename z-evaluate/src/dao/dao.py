@@ -5,23 +5,27 @@ import gc
 from src.utils.path_manager import PathManager
 
 TRAIN_2016_DATA_FILE_NAME = "train_complete_2016.csv"
+TEST_2016_DATA_FILE_NAME = "properties_2016.csv"
 
 class DAO:
 
-    def __init__(self, df_file_name=TRAIN_2016_DATA_FILE_NAME, new_features=[]):
+    def __init__(self, train_file_name=TRAIN_2016_DATA_FILE_NAME, test_file_name=TEST_2016_DATA_FILE_NAME, new_features=[]):
         self.pm = PathManager()
 
-        df_file_path = self.pm.get_data_dir(df_file_name)
-        self.data = self.load_data(df_file_path, new_features=new_features)
+        train_df_file_path = self.pm.get_data_dir(train_file_name)
+        self.data_train = self.load_data(train_df_file_path, new_features=new_features)
+
+        test_df_file_path = self.pm.get_data_dir(test_file_name)
+        self.data_test = self.load_data(test_df_file_path, new_features=new_features)
 
     def load_data(self, df_file_path, new_features=[]):
-        df = pd.read_csv(df_file_path)
+        df = pd.read_csv(df_file_path, low_memory=False)
         df = df.set_index(df["parcelid"])
         del df["parcelid"]
 
         for new_feature in new_features:
             path = PathManager().get_new_features_dir() + new_feature + ".csv"
-            new_feature_df = pd.read_csv(path)
+            new_feature_df = pd.read_csv(path, low_memory=False)
             new_feature_df = new_feature_df.set_index(new_feature_df["parcelid"])
 
             df = df.merge(new_feature_df, left_index=True, right_index=True, how="left")
@@ -29,7 +33,7 @@ class DAO:
         gc.collect()
         return df
 
-    def get_data(self, cols_type=None, max_na_count_columns=1):
+    def get_data(self, cols_type=None, dataset="train", max_na_count_columns=1):
         '''
 
         cols_type: None or 'numeric' values are accepted.
@@ -41,29 +45,35 @@ class DAO:
                 Example: 0.25 to return columns that have NAs proportion less or equal than 25%
 
         '''
-        if cols_type is None:
-            data = self.data
 
-        elif cols_type == "numeric":
-            numeric_cols = self.infer_numeric_cols(self.data)
-            data = self.data[numeric_cols]
+        if dataset == "train":
+            use_data = self.data_train
+        elif dataset == "test":
+            use_data = self.data_test
 
-        use_cols = self.less_na_cols(data, threshold=max_na_count_columns)
+        if cols_type == "numeric":
+            numeric_cols = self.infer_numeric_cols(use_data)
+            use_data = use_data[numeric_cols]
 
-        return data[use_cols]
+        use_cols = self.less_na_cols(use_data, threshold=max_na_count_columns)
 
-    def get_normalized_data(self, max_na_count_columns=1):
+        gc.collect()
+        return use_data[use_cols]
+
+    def get_normalized_data(self, dataset="train", max_na_count_columns=1):
         '''
         Returns normalize data.
         Only numeric data will be returned.
-        Rows with any NA values are removed.
+
+        IMPORTANT: Remaining ROWS with any NA values are removed.
 
         max_na_count_columns: Set the NAs threshold for the maximum NAs proportion.
-                Example: 1 to return columns that have NAs proportion less or equal than 100%
-                Example: 0.25 to return columns that have NAs proportion less or equal than 25%
+                Example: 1 to return COLUMNS that have NAs proportion less or equal than 100%
+                Example: 0.25 to return COLUMNS that have NAs proportion less or equal than 25%
         '''
-        df = self.get_data(cols_type="numeric", max_na_count_columns=max_na_count_columns)
+        df = self.get_data(cols_type="numeric", dataset=dataset, max_na_count_columns=max_na_count_columns)
         df = df.dropna()
+        parcelid_index = df.index
 
         x = df.values
         min_max_scaler = preprocessing.MinMaxScaler()
@@ -72,6 +82,7 @@ class DAO:
 
         df_norm.columns = df.columns
         gc.collect()
+        df_norm = df_norm.set_index(parcelid_index)
         return df_norm
 
     def infer_numeric_cols(self, df):

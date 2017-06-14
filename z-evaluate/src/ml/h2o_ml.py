@@ -85,7 +85,7 @@ class H2ODeepWater(H2OMlBase):
 if __name__ == "__main__":
     model = H2OGradientBoosting()
 
-    dao = DAO(df_file_name="train_complete_2016.csv")
+    dao = DAO(train_file_name="train_complete_2016.csv")
     df_train = dao.get_normalized_data(max_na_count_columns=0.5)
     df_train = df_train.dropna()
     model.train(df_train, "logerror")

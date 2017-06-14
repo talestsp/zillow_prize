@@ -7,6 +7,7 @@ PREDICTIONS_EVAL_DIR = "predictions_eval/"
 DATA_EVAL_DIR = "data_eval/"
 DATA_DIR = "data/"
 NEW_FEATURES_DIR = "new_features/"
+SUBMISSION_DIR = "submissions/"
 TEMP_DIR = "temp/"
 
 class PathManager:
@@ -19,22 +20,22 @@ class PathManager:
         return "/".join(wd_split[0:i]) + "/"
 
     def get_results_dir(self):
-        path = self.root_dir + PROJECT_DIR + RESULTS_DIR
+        path = self.root_dir + RESULTS_DIR
         self.create_dir(path)
         return path
 
     def get_results_plot_dir(self):
-        path = self.get_results_dir() + PLOTS_DIR
+        path = self.root_dir + RESULTS_DIR + PLOTS_DIR
         self.create_dir(path)
         return path
 
     def get_results_predictions_eval_dir(self):
-        path = self.get_results_dir() + PREDICTIONS_EVAL_DIR
+        path = self.root_dir + RESULTS_DIR + PREDICTIONS_EVAL_DIR
         self.create_dir(path)
         return path
 
     def get_results_data_eval_dir(self):
-        path = self.get_results_dir() + DATA_EVAL_DIR
+        path = self.root_dir + RESULTS_DIR + DATA_EVAL_DIR
         self.create_dir(path)
         return path
 
@@ -42,7 +43,12 @@ class PathManager:
         return self.root_dir + DATA_DIR + NEW_FEATURES_DIR
 
     def get_data_dir(self, data_file_name):
-        return self.root_dir + DATA_DIR + data_file_name
+        return self.root_dir + PROJECT_DIR + DATA_DIR + data_file_name
+
+    def get_submission_dir(self):
+        path = self.root_dir + SUBMISSION_DIR
+        self.create_dir(path)
+        return path
 
     def get_temp_dir(self):
         path = self.root_dir + TEMP_DIR

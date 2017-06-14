@@ -16,7 +16,7 @@ def select_by_corr_thresh(df, corr_threshold=0.75):
     # print()
 
     #selecting k best
-    use_df_corr = df_corr.head(int(len(df_corr) / 2))
+    use_df_corr = df_corr.head(int(len(df_corr) / 1))
     use_df_corr = use_df_corr[use_df_corr.index.tolist()]
 
     # print(use_df_corr)
@@ -44,11 +44,11 @@ if __name__ == "__main__":
     new_features_list = [[new_features.replace(".csv", "")] for new_features in new_features_list]
     print("new_features_list:", new_features_list)
 
-    dao = DAO(df_file_name="train_complete_2016.csv", new_features=["knn-longitude-latitude"])
+    dao = DAO(train_file_name="train_complete_2016.csv", new_features=["knn-longitude-latitude"])
     df = dao.get_normalized_data(max_na_count_columns=0.05)
     df = df.dropna()
 
     print(select_by_corr_thresh(df))
-
+    print(df.columns.tolist())
 
 #good_cols: ['longitude--latitude', 'bedroomcnt', 'structuretaxvaluedollarcnt', 'yearbuilt']
