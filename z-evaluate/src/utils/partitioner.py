@@ -5,8 +5,8 @@ def simple_partition(df, train_proportion):
     size = int(train_proportion * len(df))
 
     train_indexes = df.sample(size).index
-    train_df = df.loc[train_indexes]
-    test_df = df[~df.index.isin(train_indexes)]
+    train_df = df.loc[train_indexes].copy()
+    test_df = df[~df.index.isin(train_indexes)].copy()
 
     return train_df, test_df
 

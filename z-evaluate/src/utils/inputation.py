@@ -1,14 +1,16 @@
 from sklearn.preprocessing import Imputer
-from src.dao.dao import DAO
+import gc
 
-def inputtation(df, strategy="most_frequent"):
+def inputation(df, strategy="most_frequent"):
     inputer = Imputer(strategy=strategy, axis=0)
+    #TODO
 
+def col_mean_inputer(df):
+    df_inputed = df.copy()
+    for col in df_inputed.columns.tolist():
+        col_mean = df_inputed[col].mean()
+        df_inputed[col] = df_inputed[col].fillna(col_mean)
 
-
-dao = DAO(train_file_name="train_complete_2016.csv", new_features=["knn-longitude-latitude"])
-
-df = dao.get_data(cols_type="numeric", max_na_count_columns=0.05)
-
-inputer = Imputer(strategy="most_frequent", axis=0)
+    gc.collect()
+    return df_inputed
 

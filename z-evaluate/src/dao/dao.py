@@ -1,5 +1,6 @@
 import pandas as pd
 from sklearn import preprocessing
+from src.utils.inputation import col_mean_inputer
 import gc
 
 from src.utils.path_manager import PathManager
@@ -33,7 +34,7 @@ class DAO:
         gc.collect()
         return df
 
-    def get_data(self, cols_type=None, dataset="train", inputation="fill_0", max_na_count_columns=1):
+    def get_data(self, cols_type=None, dataset="train", max_na_count_columns=1):
         '''
 
         cols_type: None or 'numeric' values are accepted.
@@ -59,19 +60,29 @@ class DAO:
         gc.collect()
         return use_data[use_cols]
 
-    def get_normalized_data(self, dataset="train", max_na_count_columns=1):
+    def get_normalized_data(self, dataset="train", inputation="drop", max_na_count_columns=1):
         '''
         Returns normalize data.
         Only numeric data will be returned.
 
-        IMPORTANT: Remaining ROWS with any NA values are removed.
+        IMPORTANT: Defatul value for inputation means that remaining ROWS with any NA values are removed.
 
         max_na_count_columns: Set the NAs threshold for the maximum NAs proportion.
                 Example: 1 to return COLUMNS that have NAs proportion less or equal than 100%
                 Example: 0.25 to return COLUMNS that have NAs proportion less or equal than 25%
         '''
         df = self.get_data(cols_type="numeric", dataset=dataset, max_na_count_columns=max_na_count_columns)
-        df = df.fillna(0).copy()
+
+        target = df["logerror"]
+
+        del df["logerror"]
+
+        if inputation == "drop":
+            df = df.dropna()
+        elif inputation == "fill_0":
+            df = df.fillna(0)
+        elif inputation == "column_mean":
+            df = col_mean_inputer(df)
 
         parcelid_index = df.index
 
@@ -83,6 +94,8 @@ class DAO:
         df_norm.columns = df.columns
         gc.collect()
         df_norm = df_norm.set_index(parcelid_index)
+
+        df["logerror"] = target
         return df_norm
 
     def infer_numeric_cols(self, df):

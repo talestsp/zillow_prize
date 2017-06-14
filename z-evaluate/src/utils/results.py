@@ -62,8 +62,9 @@ class Results:
         print("MAE:", self.mae)
         print("R2:", self.r2)
         print("tags:", self.tags)
-        print("feat_selection", self.feat_selection)
-        print("columns relevance")
+        print("feat_selection:", self.feat_selection)
+        print("inputation:", self.inputation)
+        print("columns relevance:")
         print(self.columns_relevance())
         print()
 

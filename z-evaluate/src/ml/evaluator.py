@@ -71,13 +71,13 @@ if __name__ == "__main__":
             for new_features in [["knn-longitude-latitude"], []]:
                 for abs_target in [True, False]:
                     for norm in [True, False]:
-                        for inputation in ["fill_0"]:
+                        for inputation in ["column_mean", "fill_0"]:
                             print("Evaluating:", model.__class__.__name__)
                             tags = []
                             dao = DAO(train_file_name="train_complete_2016.csv", new_features=new_features)
 
                             if norm:
-                                df = dao.get_normalized_data(max_na_count_columns=0.05)
+                                df = dao.get_normalized_data(inputation=inputation, max_na_count_columns=0.05)
                                 tags.append("norm")
                             else:
                                 df = dao.get_data(cols_type="numeric", max_na_count_columns=0.05)
