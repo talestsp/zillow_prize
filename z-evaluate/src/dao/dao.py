@@ -33,7 +33,7 @@ class DAO:
         gc.collect()
         return df
 
-    def get_data(self, cols_type=None, dataset="train", max_na_count_columns=1):
+    def get_data(self, cols_type=None, dataset="train", inputation="fill_0", max_na_count_columns=1):
         '''
 
         cols_type: None or 'numeric' values are accepted.
@@ -56,7 +56,6 @@ class DAO:
             use_data = use_data[numeric_cols]
 
         use_cols = self.less_na_cols(use_data, threshold=max_na_count_columns)
-
         gc.collect()
         return use_data[use_cols]
 
@@ -72,7 +71,8 @@ class DAO:
                 Example: 0.25 to return COLUMNS that have NAs proportion less or equal than 25%
         '''
         df = self.get_data(cols_type="numeric", dataset=dataset, max_na_count_columns=max_na_count_columns)
-        df = df.dropna()
+        df = df.fillna(0).copy()
+
         parcelid_index = df.index
 
         x = df.values
