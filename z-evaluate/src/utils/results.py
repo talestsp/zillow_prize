@@ -51,8 +51,14 @@ class Results:
     def set_cols_type(self, cols_type):
         self.cols_type = cols_type
 
+    def set_abs_target(self, abs_target):
+        self.abs_target = abs_target
+
+    def set_norm(self, norm):
+        self.norm = norm
+
     def plot(self, show, save, file_name=None):
-        title = self.model_name + " " + "mae:" + str(round(self.mae, 5)) + " " + "r2:" + str(round(self.r2, 5)) + " " + "tags:" + str(self.tags)
+        title = self.model_name + " " + "mae:" + str(round(self.mae, 5)) + " " + "r2:" + str(round(self.r2, 5))
         prediction_scatter_plot(self.result_df, show_plot=show, save_plot=save, title=title, file_name=file_name)
 
     def columns_relevance(self):
@@ -64,11 +70,13 @@ class Results:
         print("Date:", self.datetime)
         print("MAE:", self.mae)
         print("R2:", self.r2)
-        print("tags:", self.tags)
+        print("abs:", self.abs_target)
+        print("cols_type:", self.cols_type)
         print("feat_selection:", self.feat_selection)
-        print("inputation:", self.inputation)
         print("new_feat:", self.new_features)
-        print("set_cols_type:", self.cols_type)
+        print("norm:", self.norm)
+        print("inputation:", self.inputation)
+
         print("columns relevance:")
         print(self.columns_relevance())
         print()
@@ -80,7 +88,8 @@ class Results:
         result_dict["model_name"] = self.model_name
         result_dict["mae"] = self.mae
         result_dict["r2"] = self.r2
-        result_dict["tags"] = self.tags
+        result_dict["norm"] = self.norm
+        result_dict["abs"] = self.abs_target
         result_dict["new_features"] = self.new_features
         result_dict["feat_selection"] = self.feat_selection
         result_dict["inputation"] = self.inputation

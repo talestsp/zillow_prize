@@ -9,6 +9,12 @@ pd.set_option('display.float_format', lambda x: '%.5f' % x)
 
 
 def select_by_corr_thresh(df, corr_threshold=0.75):
+    '''
+    For each pair of high correlated columns it rejects the one that has lower correlation with target.
+    :param df:
+    :param corr_threshold:
+    :return:
+    '''
 
     df_corr = df.corr().sort_values(by="logerror", ascending=False)
     df_corr = abs(df_corr)

@@ -5,7 +5,7 @@ from sklearn import preprocessing
 class SKLearnMlBase:
 
     def __init__(self):
-        print("model:", self.model_name)
+        print("model built:", type(self.model).__name__)
 
     def train(self, df_train, target_name):
         use_cols = df_train.columns.tolist() #columns from train
@@ -100,6 +100,17 @@ class SKLearnLinearRegression(SKLearnMlBase):
         self.model = linear_model.LinearRegression()
         self.model_name = "SKLearnLinearRegression"
         SKLearnMlBase.__init__(self)
+
+
+class SKLearnHuberRegressor(SKLearnMlBase):
+
+    def __init__(self):
+        self.model = linear_model.HuberRegressor()
+        self.model_name = "SKLearnHuberRegressor"
+        SKLearnMlBase.__init__(self)
+
+
+
 
 
 

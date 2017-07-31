@@ -10,7 +10,7 @@ class H2OMlBase:
         h2o.init()
         h2o.remove_all()
 
-        print("model:", self.model_name)
+        print("model built:", type(self.model).__name__)
 
     def train(self, df_train, target_name):
         use_cols = df_train.columns.tolist() #columns from train
@@ -56,16 +56,16 @@ class H2OMlBase:
 
 class H2OGradientBoosting(H2OMlBase):
 
-    def __init__(self):
-        self.model = h2o.estimators.H2OGradientBoostingEstimator()
+    def __init__(self, ntrees=50):
+        self.model = h2o.estimators.H2OGradientBoostingEstimator(ntrees=ntrees)
         self.model_name = "H2OGradientBoosting"
         H2OMlBase.__init__(self)
 
 
 class H2ODeepLearning(H2OMlBase):
 
-    def __init__(self):
-        self.model = h2o.estimators.H2ODeepLearningEstimator(variable_importances=True)
+    def __init__(self, epochs=4):
+        self.model = h2o.estimators.H2ODeepLearningEstimator(variable_importances=True, epochs=epochs)
         self.model_name = "H2ODeepLearning"
         H2OMlBase.__init__(self)
 

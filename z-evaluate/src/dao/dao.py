@@ -19,6 +19,18 @@ class DAO:
         test_df_file_path = self.pm.get_data_dir(test_file_name)
         self.data_test = self.load_data(test_df_file_path, new_features=new_features)
 
+        # print("self.data_train")
+        # print(self.data_train.shape)
+        # print(train_df_file_path)
+        # print(self.data_train.head())
+        # print("\n\n")
+        # print("self.data_test")
+        # print(self.data_test.shape)
+        # print(test_df_file_path)
+        # print(self.data_test.head())
+        # print("\n\n\n\n\n")
+
+
     def load_data(self, df_file_path, new_features=[]):
         df = pd.read_csv(df_file_path, low_memory=False)
         df = df.set_index(df["parcelid"])
@@ -34,7 +46,7 @@ class DAO:
         gc.collect()
         return df
 
-    def get_data(self, cols_type=None, dataset="train", max_na_count_columns=1):
+    def get_data(self, cols_type=None, inputation=None, dataset="train", max_na_count_columns=1):
         '''
 
         cols_type: None or 'numeric' values are accepted.
@@ -57,10 +69,21 @@ class DAO:
             use_data = use_data[numeric_cols]
 
         use_cols = self.less_na_cols(use_data, threshold=max_na_count_columns)
-        gc.collect()
-        return use_data[use_cols]
 
-    def get_normalized_data(self, dataset="train", inputation="drop", max_na_count_columns=1):
+        gc.collect()
+
+        df = use_data[use_cols]
+
+        if inputation == "drop":
+            df = df.dropna()
+        elif inputation == "fill_0":
+            df = df.fillna(0)
+        elif inputation == "column_mean":
+            df = col_mean_inputer(df)
+
+        return df
+
+    def get_normalized_data(self, dataset="train", inputation=None, max_na_count_columns=1):
         '''
         Returns normalize data.
         Only numeric data will be returned.
@@ -71,14 +94,7 @@ class DAO:
                 Example: 1 to return COLUMNS that have NAs proportion less or equal than 100%
                 Example: 0.25 to return COLUMNS that have NAs proportion less or equal than 25%
         '''
-        df = self.get_data(cols_type="numeric", dataset=dataset, max_na_count_columns=max_na_count_columns)
-
-        if inputation == "drop":
-            df = df.dropna()
-        elif inputation == "fill_0":
-            df = df.fillna(0)
-        elif inputation == "column_mean":
-            df = col_mean_inputer(df)
+        df = self.get_data(cols_type="numeric", inputation=inputation, dataset=dataset, max_na_count_columns=max_na_count_columns)
 
         if dataset == "train":
             target = df["logerror"]
@@ -95,7 +111,8 @@ class DAO:
         gc.collect()
         df_norm = df_norm.set_index(parcelid_index)
 
-        df_norm["logerror"] = target.tolist()
+        if dataset == "train":
+            df_norm["logerror"] = target.tolist()
         return df_norm
 
     def infer_numeric_cols(self, df):
