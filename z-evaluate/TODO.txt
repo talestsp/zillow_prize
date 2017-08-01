@@ -30,4 +30,6 @@
     ~ To be created
         ...
 
+~ classify columns (numeric, date, categorical...)
+
 ~ Plot relations between each column and the logerror. Scatter Plot would work well. Please use X axis as the non target column :)
