@@ -5,6 +5,7 @@ from src.ml.evaluator import Evaluator
 from src.ml.h2o_ml import H2ODeepLearning, H2OGradientBoosting
 from src.ml.sklearn_ml import SKLearnLinearRegression, SKLearnHuberRegressor
 from src.dao.dao import DAO
+from src.utils.feature_selection import select_by_corr_thresh
 import json
 import gc
 
@@ -32,11 +33,39 @@ def submission_by_id(id):
     model_name = data_eval["model_name"]
 
 
-    train = process_data(dataset="train", cols_type=cols_type, norm=norm, inputation=inputation,
-                        new_features=new_features, feat_selection=feat_selection)
+    if feat_selection == "select_by_corr_thresh":
+        feat_selection = select_by_corr_thresh
 
-    test = process_data(dataset="test", cols_type=cols_type, norm=norm, inputation=inputation,
-                         new_features=new_features, feat_selection=None)
+    dao = DAO(new_features=new_features)
+
+    train = process_data(dao=dao, dataset="train", cols_type="all", norm=False, inputation="column_mean_fine",
+                        new_features=new_features, feat_selection=select_by_corr_thresh, max_na_count_columns=1.0)
+    train.to_csv("/home/tales/dev/projects/zillow-zestimate/z-evaluate/data/train_complete_2016_colmean_fine.csv")
+
+    train = None
+    gc.collect()
+
+    test = process_data(dao=dao, dataset="test", cols_type="all", norm=False, inputation="column_mean_fine",
+                         new_features=new_features, feat_selection=select_by_corr_thresh, max_na_count_columns=1.0)
+    test.to_csv("/home/tales/dev/projects/zillow-zestimate/z-evaluate/data/properties_2016_colmean_fine.csv")
+
+    euahuaehu
+
+
+    dao = DAO(new_features=new_features)
+
+    train = process_data(dao=dao, dataset="train", cols_type=cols_type, norm=norm, inputation=inputation,
+                        new_features=new_features, feat_selection=select_by_corr_thresh, max_na_count_columns=1.0)
+
+    test = process_data(dao=dao, dataset="test", cols_type=cols_type, norm=norm, inputation=inputation,
+                         new_features=new_features, feat_selection=None, max_na_count_columns=1.0)
+
+    use_cols = train.columns.tolist()
+    use_cols.remove(TARGET)
+    test = test[use_cols]
+
+    dao = None
+    gc.collect()
 
     model = pick_model(model_name)
     ev = Evaluator(model=model)
@@ -46,66 +75,23 @@ def submission_by_id(id):
     print()
     print("test", test.shape)
     print(test.head())
+
     pred = ev.run(train, test, abs_target=abs_target)
     pred = pd.Series(pred)
+
     print("Predictions length:", len(pred))
+    print(pred.head())
 
     test_ids = test.index.tolist()
 
     make_submission_file(id, pred, test_ids, data_eval)
 
-# def process_data(dataset, cols_type, norm, inputation, new_features, feat_selection, max_na_count_columns=0.05):
-#     if dataset == "test":
-#         max_na_count_columns = 1.0
-#
-#     dao = DAO(new_features=new_features)
-#
-#     if norm and cols_type == "numeric":
-#         df = dao.get_normalized_data(dataset=dataset, inputation=inputation, max_na_count_columns=max_na_count_columns)
-#
-#     elif norm and cols_type == "all":
-#         df_norm = dao.get_normalized_data(dataset=dataset, inputation=inputation, max_na_count_columns=max_na_count_columns)
-#
-#         if "parcelid" in df_norm.columns.tolist():
-#             del df_norm["parcelid"]
-#
-#         df = dao.get_data(dataset=dataset, inputation=inputation, cols_type=cols_type, max_na_count_columns=max_na_count_columns)
-#
-#         if "parcelid" in df.columns.tolist():
-#             del df["parcelid"]
-#
-#         for numeric_col in df_norm.columns.tolist():
-#             if numeric_col != TARGET:
-#                 del df[numeric_col]
-#
-#         if dataset == "train":
-#             on_cols = ['parcelid', TARGET]
-#         else:
-#             on_cols = ['parcelid']
-#
-#         df = pd.merge(df.reset_index(), df_norm.reset_index(), on=on_cols, how="left").set_index('parcelid')
-#
-#         df_norm = None
-#         gc.collect()
-#
-#     else:
-#         df = dao.get_data(cols_type=cols_type, dataset=dataset, inputation=inputation, max_na_count_columns=max_na_count_columns)
-#
-#     if dataset == "train" and not feat_selection is None:
-#         if feat_selection == "select_by_corr_thresh":
-#             feat_selection = select_by_corr_thresh
-#
-#         columns = feat_selection(df) + [TARGET]
-#         df = df[columns]
-#
-#     return df
-
 def pick_model(model_name):
     if model_name == "H2OGradientBoosting":
-        return H2OGradientBoosting()
+        return H2OGradientBoosting(ntrees=100)
 
     if model_name == "H2ODeepLearning":
-        return H2ODeepLearning()
+        return H2ODeepLearning(epochs=10)
 
     if model_name == "SKLearnLinearRegression":
         return SKLearnLinearRegression()
@@ -117,7 +103,7 @@ def make_submission_file(id, pred, test_ids, data_eval):
     print("\n\n")
     print("id:", id)
     subm_name = id
-    pred = pd.Series(pred)
+    pred = pd.Series(pred).round(8)
     subm = pd.DataFrame()
     subm["ParcelId"] = test_ids
     subm["201610"] = pred
@@ -127,6 +113,8 @@ def make_submission_file(id, pred, test_ids, data_eval):
     subm["201711"] = pred
     subm["201712"] = pred
 
+    print("submission")
+    print(subm)
     subm_path = PathManager().get_submission_dir() + subm_name + ".csv"
     subm.to_csv(subm_path, index=False)
 
@@ -223,4 +211,4 @@ if __name__ == "__main__":
     #                  inputation="drop", subm_name="24449a9a-38e3-4115-bae8-e7a334a95c5c")
 
 
-    submission_by_id(id="1e3228ec-3876-4b7f-b3bf-0e7717266529")
+    submission_by_id(id="0b0fc084-ebef-4bcd-b896-c06a38b04c53")

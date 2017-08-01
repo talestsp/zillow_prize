@@ -8,6 +8,7 @@ from src.utils.partitioner import simple_partition
 from src.utils.results import Results
 from src.utils.feature_selection import select_by_corr_thresh
 from src.utils.process_data import process_data
+from src.dao.dao import DAO
 
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
@@ -71,6 +72,7 @@ if __name__ == "__main__":
         for cols_type in ["all", "numeric"]:
             for feat_selection in [select_by_corr_thresh, None]:
                 for new_features in [[], ["knn-longitude-latitude"], ["knn-longitude-latitude-signal"], ["knn-longitude-latitude", "knn-longitude-latitude-signal"]]:
+                    dao = DAO(train_file_name="train_complete_2016.csv", new_features=new_features)
                     for norm in [True, False]:
                         for inputation in ["column_mean", "fill_0"]:
                             for model in [H2OGradientBoosting(), H2ODeepLearning(), SKLearnLinearRegression(), SKLearnHuberRegressor()]:
@@ -78,7 +80,7 @@ if __name__ == "__main__":
                                 cont += 1
                                 print("essay:", cont)
 
-                                df = process_data(dataset="train", cols_type=cols_type, norm=norm,
+                                df = process_data(dao=dao, dataset="train", cols_type=cols_type, norm=norm,
                                                   inputation=inputation,
                                                   new_features=new_features, feat_selection=feat_selection,
                                                   max_na_count_columns=0.05)

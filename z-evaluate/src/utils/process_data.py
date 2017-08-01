@@ -5,11 +5,11 @@ import gc
 
 TARGET = "logerror"
 
-def process_data(dataset, cols_type, norm, inputation, new_features, feat_selection, max_na_count_columns=0.05):
+def process_data(dao, dataset, cols_type, norm, inputation, new_features, feat_selection, max_na_count_columns=0.05):
     if dataset == "test":
         max_na_count_columns = 1.0
 
-    dao = DAO(new_features=new_features)
+    #dao = DAO(new_features=new_features)
 
     if norm and cols_type == "numeric":
         df = dao.get_normalized_data(dataset=dataset, inputation=inputation, max_na_count_columns=max_na_count_columns)

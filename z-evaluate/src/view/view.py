@@ -21,10 +21,9 @@ for file_path in data_eval_file_paths:
 evals_df = pd.DataFrame(evals).sort_values(by="mae").reset_index()
 evals_df.to_csv(PathManager().get_results_dir() + "evals_df.csv", index=False)
 
-evals_df = pd.DataFrame(evals).sort_values(by="mae", ascending=True)
+evals_df = pd.DataFrame(evals).sort_values(by="r2", ascending=False)
 
-use_evals = evals_df[(evals_df["abs"].astype(str) != "True") &
-                     (evals_df["inputation"] != "drop")]
+use_evals = evals_df[(evals_df["abs"].astype(str) != "True")]
 
 print("all_cols:", evals_df.columns.tolist())
 print()

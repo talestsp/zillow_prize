@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn import preprocessing
-from src.utils.inputation import col_mean_inputer
+from src.utils.inputation import col_mean_inputer, col_mean_inputer_fine
 import gc
 
 from src.utils.path_manager import PathManager
@@ -18,18 +18,6 @@ class DAO:
 
         test_df_file_path = self.pm.get_data_dir(test_file_name)
         self.data_test = self.load_data(test_df_file_path, new_features=new_features)
-
-        # print("self.data_train")
-        # print(self.data_train.shape)
-        # print(train_df_file_path)
-        # print(self.data_train.head())
-        # print("\n\n")
-        # print("self.data_test")
-        # print(self.data_test.shape)
-        # print(test_df_file_path)
-        # print(self.data_test.head())
-        # print("\n\n\n\n\n")
-
 
     def load_data(self, df_file_path, new_features=[]):
         df = pd.read_csv(df_file_path, low_memory=False)
@@ -80,6 +68,8 @@ class DAO:
             df = df.fillna(0)
         elif inputation == "column_mean":
             df = col_mean_inputer(df)
+        elif inputation == "column_mean_fine":
+            df = col_mean_inputer_fine(df)
 
         return df
 
