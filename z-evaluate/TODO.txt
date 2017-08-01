@@ -7,6 +7,7 @@
 
     ~ To be implemented
         ~ cluster based
+        ~ knn geographic
         ~ use predictive models
         ...
 
