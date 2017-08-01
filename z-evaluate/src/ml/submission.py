@@ -36,26 +36,11 @@ def submission_by_id(id):
     if feat_selection == "select_by_corr_thresh":
         feat_selection = select_by_corr_thresh
 
-    dao = DAO(new_features=new_features)
-
-    train = process_data(dao=dao, dataset="train", cols_type="all", norm=False, inputation="column_mean_fine",
-                        new_features=new_features, feat_selection=select_by_corr_thresh, max_na_count_columns=1.0)
-    train.to_csv("/home/tales/dev/projects/zillow-zestimate/z-evaluate/data/train_complete_2016_colmean_fine.csv")
-
-    train = None
-    gc.collect()
-
-    test = process_data(dao=dao, dataset="test", cols_type="all", norm=False, inputation="column_mean_fine",
-                         new_features=new_features, feat_selection=select_by_corr_thresh, max_na_count_columns=1.0)
-    test.to_csv("/home/tales/dev/projects/zillow-zestimate/z-evaluate/data/properties_2016_colmean_fine.csv")
-
-    euahuaehu
-
 
     dao = DAO(new_features=new_features)
 
     train = process_data(dao=dao, dataset="train", cols_type=cols_type, norm=norm, inputation=inputation,
-                        new_features=new_features, feat_selection=select_by_corr_thresh, max_na_count_columns=1.0)
+                        new_features=new_features, feat_selection=feat_selection, max_na_count_columns=1.0)
 
     test = process_data(dao=dao, dataset="test", cols_type=cols_type, norm=norm, inputation=inputation,
                          new_features=new_features, feat_selection=None, max_na_count_columns=1.0)

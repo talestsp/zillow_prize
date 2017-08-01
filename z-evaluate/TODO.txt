@@ -1,6 +1,7 @@
 ~ Different types of inputation (infer missing values; NAs)
     ~ Already implemented
-        ~ col_mean: input value with the mean of the column
+        ~ col_mean: for numeric columns input value with the mean of the column, else the most frequent categorical
+        ~ col_mean_fine: for numeric columns input value with the mean of the column, else random pick a value for the missing ones
         ~ fill_0: fills NA with 0 (very dummy)
         ~ drop: remove rows with NAs (avoid the problem)
 
